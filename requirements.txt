@@ -1,18 +1,27 @@
-# Circuit Navigator Dependencies
+# Python dependencies for the standalone simulations and the tuning tools.
+# ROS 2 packages (rclpy, sensor_msgs, ...) come from the ROS 2 Jazzy install,
+# not from pip — see .devcontainer/ for a ready-made environment.
+#
 # Install with: pip install -r requirements.txt
 
 # Core scientific computing
 numpy>=1.21.0
 scipy>=1.7.0
 
-# Image processing
+# Clustering (DBSCAN) and image processing (skeletonization, morphology)
+scikit-learn>=1.0.0
 scikit-image>=0.18.0
 
 # Visualization
 matplotlib>=3.4.0
 
-# ROS2 bag file reading
+# ROS 2 bag (MCAP) reading
 mcap>=0.0.10
+mcap-ros2-support>=0.5.0
+zstandard>=0.15.0
 
-# Optional: for compressed bags
-# zstandard>=0.15.0
+# Configuration files
+PyYAML>=6.0
+
+# Tests
+pytest>=7.0

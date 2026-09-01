@@ -1,0 +1,37 @@
+# drivable_area_navigator parameters
+# ROS2 Jazzy | Python 3.12.3
+# Purpose: Centerline computation from road boundaries
+
+/**:
+  ros__parameters:
+    # Topics configuration
+    topics:
+      # Input from detector pipeline
+      boundaries_input: "/ring_boundaries"
+      # Output
+      centerline_output: "/planned_centerline"
+
+    # Frame ID (must match detector output)
+    frame_id: "velodyne"
+
+    # Edge Smoother (DISABLED - upstream Node 02 already provides temporal smoothing)
+    # The Kalman filter is redundant since ring_boundary_extraction applies:
+    # - RANSAC polynomial fitting
+    # - 5-frame temporal buffer
+    # - Geometric constraints
+    edge_smoother:
+      enable_kalman: false             # Disabled: upstream smoothing is sufficient
+      kalman_process_noise: 0.1        # Process noise Q (unused when disabled)
+      kalman_measurement_noise: 0.5    # Measurement noise R (unused when disabled)
+
+    # Centerline Planner
+    # Computes centerline from left/right boundary pairs
+    centerline_planner:
+      min_forward_dist: 2.0            # Minimum distance to consider (m)
+      max_forward_dist: 20.0           # Maximum distance (matches sensor range)
+      num_slices: 40                   # Sampling points along path
+      safety_margin: 0.5               # Distance from edges (m)
+      right_bias_alpha: 0.45           # Centerline bias (0.5 = center, <0.5 = right)
+      adaptive_bias_enabled: true      # Enable roundabout detection
+      baseline_track_width: 6.0        # Expected normal track width (m)
+      track_widening_threshold: 1.1    # Width ratio triggering roundabout mode

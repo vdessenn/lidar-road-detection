@@ -1,0 +1,190 @@
+/**:
+  ros__parameters:
+    topics:
+      # 01 Nœud road_points_extraction (dual-input for intensity filtering)
+      ground_cloud_input: "/patchworkpp/ground"  # Ground segmentation from Patchwork++
+      road_extraction_output: "/road_surface"
+
+      # 02 Nœud ring_boundary_extraction
+      ring_boundary_input: "/road_surface"
+      ring_boundary_output: "/ring_boundaries"
+
+      # 03 Nœud visualization
+      visualization_input: "/ring_boundaries"
+      visualization_output: "/road_boundaries"
+
+    # ==========================================
+    # QoS Settings for Real-Time Synchronization
+    # ==========================================
+    qos_depth: 10  # Keep only latest message for real-time performance
+
+    # ==========================================
+    # Général
+    # ==========================================
+
+    target_frame: "velodyne"
+    enable_tf_transform: false
+    verbose: true
+    enable_diagnostics: true
+
+    # LiDAR height compensation
+    # Nodes will automatically compensate when height_transformation is DISABLED
+    # compensate_lidar_height = NOT(enable_height_transformation)
+    lidar_height_from_ground: 1.90    # meters, actual LiDAR height above ground
+
+    # ==========================================
+    # 01 Extraction Points Route (Intensity-Based with Ground Intersection)
+    # ==========================================
+    # Strategy: Intersect /points (raw intensity) with /patchworkpp/ground (segmentation)
+    # This combines accurate intensity from raw LiDAR with reliable ground detection
+    #
+    # Intensity-based road extraction:
+    # - Road surface (asphalt) typically has LOW intensity (0-15)
+    # - Road markings (white paint) have HIGH intensity (20-60)
+    #
+    # Expected output: 500-1500 points for 3.75m road width
+    # Calculation: Pandora 1800 pts/frame, road ~10° angular width (~53 pts/ring × 40 rings)
+    road_points_extraction_node:
+      enable_extraction: true         # Enable/disable road extraction (passthrough if false)
+      min_road_intensity: 0.0         # Minimum intensity to keep
+      max_road_intensity: 5.0       # Maximum intensity for road surface (asphalt < 15)
+      
+      # Density filter: reject isolated noise points
+      max_range: 20.0             # Maximum distance from vehicle (meters)
+      min_neighbors: 10                # Minimum neighbors to keep point
+      neighbor_radius: 0.20           # Search radius for neighbors (meters)
+      
+      # Temporal buffer: confirm points across frames
+      buffer_frames: 5                # Number of frames in temporal buffer
+      min_confirmations: 3            # Minimum appearances to confirm point
+      bin_size: 0.3                   # Spatial bin size for temporal matching (meters)
+
+      # DBSCAN clustering parameters
+      dbscan_eps: 0.15                 # meters, max distance for neighborhood
+      dbscan_min_samples: 130          # Minimum points to form a cluster
+      dbscan_min_cluster_size: 120     # Minimum points for valid road cluster
+
+    # ==========================================
+    # 02 Ring Boundary Extraction
+    # ==========================================
+
+    ring_boundary_node:
+      enable_extraction: true
+      max_boundary_width: 8.0      # meters, symmetry constraint (was 5.0)
+      min_points_per_ring: 50       # minimum points to process ring
+      y_threshold: 0.2             # minimum |y| to be considered boundary
+      # Robust extraction: median of N extreme points (noise rejection)
+      robust_n_points: 3           # Number of extreme points for median
+      # Inter-ring consistency: reject outlier rings
+      enable_ring_consistency: true
+      max_y_deviation: 1.0         # Max |y| deviation from neighbor rings (meters) (was 0.5)
+      # Temporal smoothing: average boundaries over N frames
+      enable_temporal_smoothing: true
+      temporal_buffer_frames: 5    # Number of frames to average
+
+      # Curve fitting
+      enable_curve_fitting: true
+      fitting_method: 'ransac'          # Options: 'ransac', 'spline', 'both'
+      polynomial_degree: 2              # Degree for polynomial fitting (2=parabolic, 3=cubic)
+      ransac_residual_threshold: 0.15   # RANSAC outlier threshold (m)
+      min_points_for_fitting: 10        # Minimum points required for fitting
+      curve_resampling_spacing: 0.25    # Uniform spacing for resampled points (m) - reduced for denser output
+
+      # Geometric constraints
+      enforce_constant_width: false     # Enforce constant road width (was true)
+      width_tolerance: 0.3              # Width variation tolerance (was 0.1)
+      enforce_symmetry: false           # Force symmetric boundaries around centerline
+
+    # ==========================================
+    # Roundabout Detection & Y-Road Handling
+    # ==========================================
+
+    roundabout_detector:
+      enable_detection: true            # Enable/disable roundabout detection
+      proximity_threshold: 10.0         # meters, max distance between entry/exit for Y-pattern
+      radius_tolerance: 2.0             # meters, tolerance for roundabout radius validation
+      typical_roundabout_radius: 11.0  # meters, avg of RP1(14m) + RP2(8m) from Piste_seville.kml
+      min_consistency_score: 0.7        # 0-1, min ring consistency for roundabout classification
+                                        # Higher = stricter (rejects more bifurcations)
+
+    y_road_handler:
+      enable_adjustment: true           # Enable/disable boundary adjustment in roundabouts
+      right_hand_traffic: true          # European/US driving (exit to right)
+      ring_weight_driving_leg: 1.0      # Confidence weight for driving leg (exit in right-hand traffic)
+      ring_weight_non_driving: 0.3      # Confidence weight for non-driving legs (entry/other)
+      circular_arc_tolerance: 0.5       # meters, max distance from roundabout circle for point inclusion
+                                        # Points within ±this value from circle radius are considered on-circle
+
+    # ==========================================
+    # RANSAC Polynomial Fitting & RViz2 Visualization
+    # ==========================================
+
+    road_markers_publisher:
+      # RANSAC fitting parameters
+      polynomial_degree: 1             # LINEAR only - "Less is More" refactoring
+      residual_threshold: 0.3           # meters, max residual for inlier classification (increased for robustness)
+      max_iterations: 600               # Maximum RANSAC iterations (reduced for speed)
+      min_inlier_ratio: 0.2            # Minimum inlier ratio to accept fit (reduced from 0.2)
+      adaptive_degree: false            # DISABLED - always use degree 1 for straight lines
+
+      # Visualization parameters
+      publish_frame: 'velodyne'         # Frame ID for markers
+      marker_resolution: 0.7            # meters, distance between marker points
+      marker_line_width: 0.07           # meters, thickness of boundary lines
+      enable_filled_area: true          # Enable filled road area (triangle mesh)
+
+      # Geometric constraints
+      extrapolate_to_origin: true       # Extend boundaries backwards to x=0 (vehicle position)
+      min_road_width: 2.0               # Minimum separation between left/right boundaries (meters)
+      max_curvature: 0.0                # DISABLED: was causing artificial curves on straight roads
+      enforce_monotonic_curvature: false # DISABLED: was causing artificial curves
+      target_road_width: 4.0            # Road width from KML specs (4.0m straight, 5.3m RP1)
+      origin_half_width: 1.75           # y value at x=0 (vehicle half-width)
+                                        # Marker boundaries start at (0, -1.75) for right, (0, +1.75) for left
+                                        # This prevents boundaries from being inside the vehicle footprint
+
+    # ==========================================
+    # 03 Lissage Courbes (Savitzky-Golay)
+    # ==========================================
+
+    curves_smoothing_node:
+      enable_smoothing: true         # Enable/disable curve smoothing (passthrough if false)
+      window_length: 11               # Longueur fenêtre (7 for better noise rejection while preserving shape)
+      polyorder: 10                    # Ordre polynôme lissage (≤ window_length-1)
+      mode: "nearest"                 # Gestion bords: "nearest", "reflect", "wrap"
+      deriv: 01                       # Ordre dérivée (0=fonction, 1=dérivée 1ère)
+
+    # ==========================================
+    # 04 Visualisation RViz MarkerArray
+    # ==========================================
+
+    visualization_node:
+      enable_visualization: false     # Enable/disable RViz markers (no output if false)
+      road_surface_alpha: 0.8         # Transparence surface route (0-1)
+      boundary_line_width: 0.15       # mètres, épaisseur lignes limites
+      marking_point_size: 0.06        # mètres, taille points marquages
+      enable_grid: true               # Afficher grille référence
+      grid_step: 5.0                  # mètres, pas grille
+      grid_range: 50.0                # mètres, plage grille
+
+    # ==========================================
+    # Configuration d'Optimisation Avancée
+    # ==========================================
+
+    optimization:
+      parallel_processing: false      # Multi-threading pour pipeline
+      batch_processing: true          # Traiter plusieurs frames simultanément
+      max_queue_size: 10              # Taille file attente messages
+      frame_skip: 0                   # 0=toutes frames, N=traiter 1 sur N+1
+      compute_time_limit: 100.0       # ms, timeout par étape
+      enable_profiling: false         # Mesurer temps d'exécution
+
+    # ==========================================
+    # Logging & Diagnostics
+    # ==========================================
+
+    logging:
+      log_level: "WARN"               # "DEBUG", "INFO", "WARN", "ERROR"
+      enable_frame_stats: false       # Afficher stats chaque frame
+      enable_algorithm_profiling: true # Chronométrer chaque étape
+      save_intermediate_clouds: false # Sauvegarder nuages intermédiaires

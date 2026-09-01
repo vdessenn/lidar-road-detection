@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>drivable_area_detector</name>
+  <version>1.0.0</version>
+  <description>Détection zone circulable LiDAR Pandora</description>
+  <maintainer email="83450047+vdessenn@users.noreply.github.com">Victor Dessenne</maintainer>
+  <license>MIT</license>
+
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>sensor_msgs_py</depend>
+  <depend>visualization_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_sensor_msgs</depend>
+  
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
+  <exec_depend>python3-sklearn</exec_depend>
+  <exec_depend>python3-open3d</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+  <exec_depend>python3-pandas</exec_depend>
+  <exec_depend>python3-scikit-image</exec_depend>
+  <exec_depend>python3-mcap</exec_depend>
+  <exec_depend>python3-skimage</exec_depend>
+  
+  <test_depend>python3-pytest</test_depend>
+  
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

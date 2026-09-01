@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# ROS 2 / colcon
+build/
+install/
+log/
+core.*
+
+# Tests & tooling caches
+.pytest_cache/
+.mypy_cache/
+tools/validation_output/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Data — too large for GitHub (see README > Data)
+*.mcap
+*.npz
+rosbag/
+
+# Vendored third-party sources (see README > Setup)
+patchwork-plusplus/
+src/selected_points_publisher/
+
+# OS
+.DS_Store

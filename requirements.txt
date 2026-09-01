@@ -1,0 +1,18 @@
+# Circuit Navigator Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core scientific computing
+numpy>=1.21.0
+scipy>=1.7.0
+
+# Image processing
+scikit-image>=0.18.0
+
+# Visualization
+matplotlib>=3.4.0
+
+# ROS2 bag file reading
+mcap>=0.0.10
+
+# Optional: for compressed bags
+# zstandard>=0.15.0

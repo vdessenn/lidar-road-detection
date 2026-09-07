@@ -540,7 +540,7 @@ fi
 
 ## Related Documentation
 
-- **test_noise_filtering.py** - Unit test suite for individual enhancements
+- [**test_noise_filtering.py**](../src/drivable_area_detector/test/test_noise_filtering.py) - Unit test suite for individual enhancements
 
 ---
 

@@ -542,7 +542,6 @@ fi
 
 - **PROMPT5_OPTIMIZATION_REPORT.md** - Technical details of enhancements
 - **FILTER_TUNING_GUIDE.md** - Manual parameter tuning guide
-- **CLAUDE.md Section 14** - PROMPT-5 implementation results
 - **test_noise_filtering.py** - Unit test suite for individual enhancements
 
 ---

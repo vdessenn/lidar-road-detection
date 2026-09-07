@@ -452,7 +452,7 @@ class TestBoundaryDetector(unittest.TestCase):
         detection_rate = (detection_count / num_scenarios) * 100
 
         # Assertions
-        baseline_rate = 30.0  # From CLAUDE.md
+        baseline_rate = 30.0  # Measured pre-PROMPT-2 baseline
         improvement_target = 50.0  # Target from PROMPT-2
 
         print(f"\n{'='*70}")

@@ -540,8 +540,6 @@ fi
 
 ## Related Documentation
 
-- **PROMPT5_OPTIMIZATION_REPORT.md** - Technical details of enhancements
-- **FILTER_TUNING_GUIDE.md** - Manual parameter tuning guide
 - **test_noise_filtering.py** - Unit test suite for individual enhancements
 
 ---

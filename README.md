@@ -334,26 +334,26 @@ python tools/detection_validator.py
 │   (/hesai/pandar)                                                        │
 │        │                                                                 │
 │        ▼                                                                 │
-│   ┌─────────────────────────┐                                           │
-│   │   PATCHWORK++           │  Ground/non-ground segmentation           │
-│   │   (patchworkpp)         │  Output: /patchworkpp/ground              │
-│   └───────────┬─────────────┘                                           │
+│   ┌─────────────────────────┐                                            │
+│   │   PATCHWORK++           │  Ground/non-ground segmentation            │
+│   │   (patchworkpp)         │  Output: /patchworkpp/ground               │
+│   └───────────┬─────────────┘                                            │
 │               │                                                          │
 │               ▼                                                          │
-│   ┌─────────────────────────┐                                           │
-│   │   DETECTOR              │  Road surface → Boundary extraction       │
-│   │   (drivable_area_       │  • 01_road_points_extraction              │
-│   │    detector)            │  • 02_ring_boundary_extraction            │
-│   │                         │  Output: /road_boundaries                 │
-│   └───────────┬─────────────┘                                           │
+│   ┌─────────────────────────┐                                            │
+│   │   DETECTOR              │  Road surface → Boundary extraction        │
+│   │   (drivable_area_       │  • 01_road_points_extraction               │
+│   │    detector)            │  • 02_ring_boundary_extraction             │
+│   │                         │  Output: /road_boundaries                  │
+│   └───────────┬─────────────┘                                            │
 │               │                                                          │
 │               ▼                                                          │
-│   ┌─────────────────────────┐                                           │
-│   │   NAVIGATOR             │  Boundary → Centerline planning           │
-│   │   (drivable_area_       │  • boundary_receiver_node                 │
-│   │    navigator)           │  • centerline_planner                     │
-│   │                         │  Output: /planned_centerline              │
-│   └─────────────────────────┘                                           │
+│   ┌─────────────────────────┐                                            │
+│   │   NAVIGATOR             │  Boundary → Centerline planning            │
+│   │   (drivable_area_       │  • boundary_receiver_node                  │
+│   │    navigator)           │  • centerline_planner                      │
+│   │                         │  Output: /planned_centerline               │
+│   └─────────────────────────┘                                            │
 │                                                                          │
 └──────────────────────────────────────────────────────────────────────────┘
 
@@ -361,13 +361,13 @@ python tools/detection_validator.py
 │                        STANDALONE SIMULATIONS                            │
 ├──────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
-│   circuit_navigator/          circuit_navigator_realtime/               │
-│   (Offline)                   (Real-time)                               │
+│   circuit_navigator/          circuit_navigator_realtime/                │
+│   (Offline)                   (Real-time)                                │
 │                                                                          │
-│   MCAP → Grid → Skeleton     MCAP → Grid → LiDAR Sim → Edge Detection  │
-│        → Centerline                      → Filtering → Centerline       │
-│        → Pure Pursuit                    → Pure Pursuit                 │
-│        → Bicycle Model                   → Bicycle Model                │
+│   MCAP → Grid → Skeleton     MCAP → Grid → LiDAR Sim → Edge Detection    │
+│        → Centerline                      → Filtering → Centerline        │
+│        → Pure Pursuit                    → Pure Pursuit                  │
+│        → Bicycle Model                   → Bicycle Model                 │
 │                                                                          │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
